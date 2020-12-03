@@ -39,7 +39,7 @@ RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
     adduser openhab --gecos "openHABian,,," --disabled-password && \
     echo "openhabian:openhabian" | chpasswd && \
     echo "openhab:openhabian" | chpasswd && \
-    echo -n "Running on $(/usr/bin/arch)"
+    echo "Running on $(/usr/bin/arch)"
 
 COPY . /opt/openhabian/
 COPY build-image/openhabian.conf /etc/openhabian.conf
