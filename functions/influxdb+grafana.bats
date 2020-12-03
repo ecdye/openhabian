@@ -4,6 +4,10 @@ load influxdb+grafana.bash
 load helpers.bash
 load openhab.bash
 
+setup_file() {
+  export DEBIAN_FRONTEND="noninteractive"
+}
+
 teardown_file() {
   systemctl kill influxdb.service || true
   systemctl kill grafana-server.service || true

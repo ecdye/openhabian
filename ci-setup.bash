@@ -30,6 +30,7 @@ if [[ $1 == "travis" ]]; then
 elif [[ $1 == "github" ]]; then
   repoURL="$(git remote get-url origin)"
   repoBranch="$(git rev-parse --abbrev-ref HEAD)"
+  sed -i 's#debugmode=.*$#debugmode=on#' build-image/openhabian.conf
 
   if ! [[ $repoURL == "https"* ]]; then
     # Convert URL from SSH to HTTPS
@@ -45,6 +46,6 @@ elif [[ $1 == "github" ]]; then
     fi
     repoURL="https://github.com/${username}/${reponame}.git"
   fi
-  sed -i 's|repositoryurl=.*$|repositoryurl='"${repoURL}"'|' build-image/openhabian."${2}".conf
-  sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/openhabian."${2}".conf
+  sed -i 's|repositoryurl=.*$|repositoryurl='"${repoURL}"'|' build-image/openhabian"${2}".conf
+  sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/openhabian"${2}".conf
 fi
