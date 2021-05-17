@@ -215,7 +215,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes homegear homegear-management homegear-homematicbidcos homegear-homematicwired homegear-max python3-lzo; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -735,4 +735,3 @@ deconz_setup() {
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
 }
-
