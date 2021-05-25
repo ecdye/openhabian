@@ -98,6 +98,7 @@ if [[ -n "$UNATTENDED" ]]; then
   enable_rpi_audio
   basic_packages
   needed_packages
+  zram_setup
   bashrc_copy
   vimrc_copy
   install_tailscale "install" && setup_tailscale
@@ -115,7 +116,6 @@ if [[ -n "$UNATTENDED" ]]; then
   clean_config_userpw
   frontail_setup
   custom_frontail_log "add" "$custom_log_files"
-  zram_setup
   exim_setup
   permissions_corrections
   setup_mirror_SD "install"
