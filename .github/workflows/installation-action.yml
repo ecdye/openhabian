@@ -46,17 +46,17 @@ jobs:
             dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
             buildx_platform: linux/arm64
-            java_opt: "17"
+            java_opt: "21"
           - platform: rpi3-openjdk17
             dockerfile: ./tests/Dockerfile.rpi3-installation
             qemu_platform: arm
             buildx_platform: linux/arm/v7
-            java_opt: "17"
+            java_opt: "21"
           - platform: amd64-openjdk17
             dockerfile: ./tests/Dockerfile.amd64-installation
             qemu_platform: ""
             buildx_platform: linux/amd64
-            java_opt: "17"
+            java_opt: "21"
           - platform: rpi5-openjdk21
             dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
@@ -74,7 +74,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup environment
-        run: |
+        run:
           sudo -E ./tests/ci-setup.bash github
           sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
       - name: Set up QEMU
