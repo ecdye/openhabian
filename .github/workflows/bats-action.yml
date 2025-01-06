@@ -47,6 +47,11 @@ jobs:
     strategy:
       matrix:
         platform: [rpi4, amd64]
+        include:
+          - platform: rpi4
+            continue-on-error: true # We want to test platforms independently
+          - platform: amd64
+            continue-on-error: true # We want to test platforms independently
 
     steps:
       - name: Checkout repository

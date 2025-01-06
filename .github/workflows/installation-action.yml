@@ -40,9 +40,8 @@ jobs:
 
     strategy:
       matrix:
-        platform: [rpi5-openjdk17, rpi3-openjdk17, amd64-openjdk17, rpi3-bellsoft21]
+        platform: [rpi5-openjdk17, rpi3-openjdk17, amd64-openjdk17, rpi5-openjdk21, rpi5-temurin21]
         include:
-
           - platform: rpi5-openjdk17
             dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
@@ -55,10 +54,15 @@ jobs:
             dockerfile: ./tests/Dockerfile.amd64-installation
             qemu_platform: ""
             java_opt: "17"
-          - platform: rpi3-bellsoft21
-            dockerfile: ./tests/Dockerfile.rpi3-installation
-            qemu_platform: arm
-            java_opt: "BellSoft21"
+          - platform: rpi5-openjdk21
+            dockerfile: ./tests/Dockerfile.rpi5-installation
+            qemu_platform: arm64
+            java_opt: "21"
+            continue-on-error: true # Experimental currently
+          - platform: rpi5-temurin21
+            dockerfile: ./tests/Dockerfile.rpi5-installation
+            qemu_platform: arm64
+            java_opt: "Temurin21"
             continue-on-error: true # Experimental currently
 
     steps:
