@@ -95,7 +95,21 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing openHAB... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
     cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
-    openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
+    openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | awk '{ print $3 }')}"
+    openhabMajorVersion="$(echo "$openhabVersion" | cut -d'.' -f1)"
+    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
+    if [[ $openhabMajorVersion = 4 ]]; then
+      if [[ $javaVersion -lt 17 ]] ; then
+        update_config_java "17"
+        java_install "17"
+      fi
+    elif [[ $openhabMajorVersion = 5 ]]; then
+      if [[ $javaVersion -lt 21 ]] ; then
+        update_config_java "21"
+        java_install "21"
+      fi
+    fi
+
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
     else

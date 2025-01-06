@@ -65,13 +65,6 @@ show_main_menu() {
 
   elif [[ "$choice" == "02"* ]]; then
     wait_for_apt_to_finish_update
-    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
-    if [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 5 ]]; then
-      if [[ $javaVersion -lt 21 ]] ; then
-        update_config_java "21"
-        java_install "21"
-      fi
-    fi
     system_upgrade
 
   elif [[ "$choice" == "03"* ]]; then
@@ -81,18 +74,6 @@ show_main_menu() {
         return 255
     fi
 
-    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
-    if [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 4 ]]; then
-      if [[ $javaVersion -lt 17 ]] ; then
-        update_config_java "17"
-        java_install "17"
-      fi
-    elif [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 5 ]]; then
-      if [[ $javaVersion -lt 21 ]] ; then
-        update_config_java "21"
-        java_install "21"
-      fi
-    fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
     openhab_setup "${repo:-release}" "${openhabpkgversion}"
 
