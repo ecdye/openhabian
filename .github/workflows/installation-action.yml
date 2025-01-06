@@ -91,6 +91,7 @@ jobs:
           tags: localhost:5000/openhabian/${{ matrix.platform }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          platforms: linux/arm64,linux/amd64
           push: true
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |

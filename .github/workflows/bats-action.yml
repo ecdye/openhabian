@@ -75,6 +75,7 @@ jobs:
           file: ./tests/Dockerfile.${{ matrix.platform }}-BATS
           builder: ${{ steps.buildx.outputs.name }}
           tags: localhost:5000/openhabian/${{ matrix.platform }}-openhabian:latest
+          platforms: linux/arm64,linux/amd64
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
