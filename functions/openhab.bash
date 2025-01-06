@@ -98,14 +98,6 @@ openhab_setup() {
     openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
-      if dpkg --compare-versions "$installVersion" ge "5.0.0"; then
-        if [[ -n $INTERACTIVE ]]; then
-          if ! (whiptail --title "openHAB software change" --msgbox "openHAB 5 requires Java 21.\\n\\nPlease use menu option 45 to install Java 21." 20 80); then echo "CANCELED"; return 1; fi
-        else
-          echo "FAILED (openHAB 5 requires Java 21)"
-          return 1
-        fi
-      fi
     else
       installVersion="${ohPkgName} ${ohPkgName}-addons"
     fi
