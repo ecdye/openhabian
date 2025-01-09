@@ -2,7 +2,7 @@
 
 ## Install Java version from dpkg repositories dynamically.
 ## This function is a wrapper for the OpenJDK and Adoptium Eclipse Temurin JDK install functions.
-## Valid arguments: "11", "17", "Temurin17", "Temurin21"
+## Valid arguments: "17", "21", "Temurin17", "Temurin21", 11 (legacy)
 ##
 ## java_install(String version)
 ##
@@ -16,7 +16,7 @@ java_install() {
     rm -rf /opt/jdk
   fi
   if [[ $1 == Temurin* ]]; then
-    adoptium_fetch_apt "${1/Temurin/}"
+    adoptium_install_apt "${1/Temurin/}"
   else
     openjdk_install_apt "$1"
   fi

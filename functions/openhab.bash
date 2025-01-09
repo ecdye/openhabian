@@ -97,7 +97,7 @@ openhab_setup() {
     cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
     openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | awk '{ print $3 }')}"
     openhabMajorVersion="$(echo "$openhabVersion" | cut -d'.' -f1)"
-    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
+    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | cut -d '.' -f1)"
     if [[ $openhabMajorVersion = 4 ]]; then
       if [[ $javaVersion -lt 17 ]] ; then
         update_config_java "17"
