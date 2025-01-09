@@ -46,17 +46,17 @@ jobs:
             dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
             buildx_platform: linux/arm64
-            java_opt: "21"
+            java_opt: "17"
           - platform: rpi3-openjdk17
             dockerfile: ./tests/Dockerfile.rpi3-installation
             qemu_platform: arm
             buildx_platform: linux/arm/v7
-            java_opt: "21"
+            java_opt: "17"
           - platform: amd64-openjdk17
             dockerfile: ./tests/Dockerfile.amd64-installation
             qemu_platform: ""
             buildx_platform: linux/amd64
-            java_opt: "21"
+            java_opt: "17"
           - platform: rpi5-openjdk21
             dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
