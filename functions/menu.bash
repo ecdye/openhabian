@@ -31,7 +31,6 @@ Menu 50 provides options to backup and restore either your openHAB configuration
 show_main_menu() {
   local choice
   local version
-  local javaVersion
 
 
   choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 24 118 16 --cancel-button Exit --ok-button Execute \
