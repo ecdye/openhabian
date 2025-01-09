@@ -74,7 +74,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup environment
-        run:
+        run: |
           sudo -E ./tests/ci-setup.bash github
           sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
       - name: Set up QEMU
