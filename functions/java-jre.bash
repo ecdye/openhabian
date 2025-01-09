@@ -81,6 +81,7 @@ openjdk_fetch_apt() {
     # important to avoid release mixing:
     # prevent RPi from using the Debian distro for normal Raspbian packages
     echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+    cond_redirect apt-get update
   fi
 
   dpkg --configure -a
