@@ -219,7 +219,7 @@ fi
 
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB} branch... "
-if [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
+if running_in_docker || [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
   echo "OK"
 else
   echo "FAILED"

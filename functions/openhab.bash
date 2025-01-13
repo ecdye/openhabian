@@ -130,7 +130,8 @@ openhab_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect zram_dependency install ${ohPkgName}; then return 1; fi
-  if cond_redirect systemctl enable ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (reload)"; return 1; fi
+  if cond_redirect systemctl enable --now ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
   create_systemd_dependencies
@@ -138,12 +139,6 @@ openhab_setup() {
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
-
-  # see https://github.com/openhab/openhab-core/issues/1937
-  echo -n "$(timestamp) [openHABian] Restarting openHAB service the hard way to play it safe... "
-  if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
-  sleep 60
-  pkill -9 java
 
   if [[ -n $INTERACTIVE ]]; then
     unset DEBIAN_FRONTEND
