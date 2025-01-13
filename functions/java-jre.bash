@@ -72,17 +72,19 @@ openjdk_fetch_apt() {
   local keyName="debian-bookworm"
 
   echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
-  if ! cond_redirect add_keys "https://ftp-master.debian.org/keys/archive-key-12.asc" "$keyName"; then echo "FAILED (add keys)"; return 1; fi # Add keys for older systems that need them
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg]  http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
+  if [[ $1 == "21" ]]; then
+    if ! cond_redirect add_keys "https://ftp-master.debian.org/keys/archive-key-12.asc" "$keyName"; then echo "FAILED (add keys)"; return 1; fi # Add keys for older systems that need them
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg]  http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
+    # Avoid release mixing: prevent RPi from using the Debian distro for normal Raspbian packages
+    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
-  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
-  if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
-
-  # Avoid release mixing: prevent RPi from using the Debian distro for normal Raspbian packages
-  # But wait until the package is actually installed to avoid breaking the system
-  echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-  cond_redirect apt-get update
+    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
+  else
+    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
+  fi
 }
 
 ## Install OpenJDK using APT repository.
@@ -94,7 +96,11 @@ openjdk_install_apt() {
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if [[ $1 == "21" ]]; then
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    else
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
     cond_redirect java_alternatives_reset

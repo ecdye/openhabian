@@ -42,7 +42,7 @@ if ! is_bookworm; then
   rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 fi
 webserver=/boot/webserver.bash
-[[ -L $webserver ]] || ln -s /boot/firmware/webserver.bash "$webserver"
+ln -sfn /boot/firmware/webserver.bash "$webserver"
 
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
@@ -93,7 +93,7 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if is_bookworm; then
+if ! running_in_docker && is_bookworm; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
 
@@ -105,7 +105,7 @@ if is_bookworm; then
 #elif [[ -z $wifiSSID ]]; then
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
-  echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
+  echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
 elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
