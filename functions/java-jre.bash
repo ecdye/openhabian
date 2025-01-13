@@ -75,14 +75,16 @@ openjdk_fetch_apt() {
   cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
   cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
-  # important to avoid release mixing:
-  # prevent RPi from using the Debian distro for normal Raspbian packages
-  echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
   cond_redirect apt-get update
 
   dpkg --configure -a
   echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
   if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  # Avoid release mixing: prevent RPi from using the Debian distro for normal Raspbian packages
+  # But wait until the package is actually installed to avoid breaking the system
+  echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+  cond_redirect apt-get update
 }
 
 ## Install OpenJDK using APT repository.
