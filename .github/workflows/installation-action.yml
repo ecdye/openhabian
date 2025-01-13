@@ -29,18 +29,53 @@ on:
       - '!.github/workflows/installation-action.yml'
 
 jobs:
-  installation-tests:
+  amd-installation-tests:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
 
     strategy:
       matrix:
-        platform: [rpi5-openjdk17, rpi3-openjdk17, amd64-openjdk17, rpi5-openjdk21, rpi5-temurin21]
+        platform: [amd64-openjdk17, amd64-openjdk21]
+        include:
+          - platform: amd64-openjdk17
+            java_opt: "17"
+          - platform: amd64-openjdk21
+            java_opt: "21"
+            continue-on-error: true # Experimental currently
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          sudo -E ./tests/ci-setup.bash github
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3.8.0
+        with:
+          driver-opts: network=host
+      - name: Build Docker image
+        uses: docker/build-push-action@v6.11.0
+        with:
+          context: .
+          load: true
+          file: ./tests/Dockerfile.amd64-installation
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: openhabian/${{ matrix.platform }}:latest
+          platforms: linux/amd64
+      - name: openHABian installation test with ${{ matrix.platform }}
+        run: |
+          docker run --privileged --rm --platform linux/amd64 --name "openhabian-${{ matrix.platform }}" -d openhabian/${{ matrix.platform }}
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test ${{ matrix.java_opt }} && /boot/first-boot.bash'
+        shell: bash
+
+  rpi-installation-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    strategy:
+      matrix:
+        platform: [rpi5-openjdk17, rpi3-openjdk17, rpi5-openjdk21, rpi5-temurin21]
         include:
           - platform: rpi5-openjdk17
             dockerfile: ./tests/Dockerfile.rpi5-installation
@@ -51,11 +86,6 @@ jobs:
             dockerfile: ./tests/Dockerfile.rpi3-installation
             qemu_platform: arm
             buildx_platform: linux/arm/v7
-            java_opt: "17"
-          - platform: amd64-openjdk17
-            dockerfile: ./tests/Dockerfile.amd64-installation
-            qemu_platform: ""
-            buildx_platform: linux/amd64
             java_opt: "17"
           - platform: rpi5-openjdk21
             dockerfile: ./tests/Dockerfile.rpi5-installation
@@ -76,7 +106,6 @@ jobs:
       - name: Setup environment
         run: |
           sudo -E ./tests/ci-setup.bash github
-          sed -i 's|java_opt=.*$|java_opt='"${{ matrix.java_opt }}"'|' build-image/openhabian.conf
       - name: Set up QEMU
         if: ${{ matrix.qemu_platform != '' }}
         uses: docker/setup-qemu-action@v3.3.0
@@ -91,15 +120,13 @@ jobs:
         uses: docker/build-push-action@v6.11.0
         with:
           context: .
+          load: true
           file: ${{ matrix.dockerfile }}
           builder: ${{ steps.buildx.outputs.name }}
-          tags: localhost:5000/openhabian/${{ matrix.platform }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: openhabian/${{ matrix.platform }}:latest
           platforms: ${{ matrix.buildx_platform }}
-          push: true
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |
-          docker run --privileged --rm --platform ${{ matrix.buildx_platform }} --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
+          docker run --privileged --rm --platform ${{ matrix.buildx_platform }} --name "openhabian-${{ matrix.platform }}" -d openhabian/${{ matrix.platform }}
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test ${{ matrix.java_opt }} && /boot/first-boot.bash'
         shell: bash
